@@ -1,0 +1,180 @@
+{
+ "metadata": {
+  "name": "OSM"
+ },
+ "nbformat": 3,
+ "nbformat_minor": 0,
+ "worksheets": [
+  {
+   "cells": [
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": "from lxml import etree\nimport json",
+     "language": "python",
+     "metadata": {},
+     "outputs": [],
+     "prompt_number": 49
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": "osm_data = etree.parse('mpls-stpaul.osm')",
+     "language": "python",
+     "metadata": {},
+     "outputs": [],
+     "prompt_number": 5
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": "root = osm_data.getroot()\nroot.tag",
+     "language": "python",
+     "metadata": {},
+     "outputs": [
+      {
+       "metadata": {},
+       "output_type": "pyout",
+       "prompt_number": 12,
+       "text": "'osm'"
+      }
+     ],
+     "prompt_number": 12
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": "len(list(root))",
+     "language": "python",
+     "metadata": {},
+     "outputs": [
+      {
+       "metadata": {},
+       "output_type": "pyout",
+       "prompt_number": 13,
+       "text": "2980395"
+      }
+     ],
+     "prompt_number": 13
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": "nodes = root.findall('node')\nways = root.findall('way')\nrelations = root.findall('relation')",
+     "language": "python",
+     "metadata": {},
+     "outputs": [],
+     "prompt_number": 23
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": "print len(nodes), len(ways), len(relations)",
+     "language": "python",
+     "metadata": {},
+     "outputs": [
+      {
+       "output_type": "stream",
+       "stream": "stdout",
+       "text": "2706797 271768 1829\n"
+      }
+     ],
+     "prompt_number": 40
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": "keys = ['lat', 'lon']\nall_nodes = {}\nfor node in nodes:\n    node_data = {}\n    for key in keys:\n        node_data[key] = float(node.attrib[key])\n    all_nodes[node.attrib['id']] = node_data\nwith open('mpls_nodes.json', 'w') as f:\n    json.dump(all_nodes, f)",
+     "language": "python",
+     "metadata": {},
+     "outputs": [],
+     "prompt_number": 97
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": "from random import sample\ndef some_nodes(num_some=1000):\n    keys = ['lat', 'lon']\n    some_nodes = {}\n    for node in sample(nodes, num_some):\n        node_data = {}\n        for key in keys:\n            node_data[key] = float(node.attrib[key])\n        some_nodes[node.attrib['id']] = node_data\n    return some_nodes",
+     "language": "python",
+     "metadata": {},
+     "outputs": [],
+     "prompt_number": 114
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": "with open('mpls_nodes_some.json', 'w') as f:\n    json.dump(some_nodes(), f)",
+     "language": "python",
+     "metadata": {},
+     "outputs": [],
+     "prompt_number": 115
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": "def node_within_bounds(node_with_coords, bounds):\n    coords = node_with_coords[1]\n    return (coords['lat'] >= bounds['lat_min'] and\n            coords['lat'] <= bounds['lat_max'] and\n            coords['lon'] >= bounds['lon_min'] and\n            coords['lon'] <= bounds['lon_max'])",
+     "language": "python",
+     "metadata": {},
+     "outputs": [],
+     "prompt_number": 123
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": "bounds = {'lat_min': 44.964919,\n          'lat_max': 44.988981,\n          'lon_min': -93.248692,\n          'lon_max': -93.206293}\nlen({n[0]: n[1] for n in some_nodes().iteritems() if node_within_bounds(n, bounds)})",
+     "language": "python",
+     "metadata": {},
+     "outputs": [
+      {
+       "metadata": {},
+       "output_type": "pyout",
+       "prompt_number": 145,
+       "text": "17"
+      }
+     ],
+     "prompt_number": 145
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": "bounded_nodes = {n[0]: n[1] for n in all_nodes.iteritems() if node_within_bounds(n, bounds)}\nlen(bounded_nodes)",
+     "language": "python",
+     "metadata": {},
+     "outputs": [
+      {
+       "metadata": {},
+       "output_type": "pyout",
+       "prompt_number": 146,
+       "text": "41677"
+      }
+     ],
+     "prompt_number": 146
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": "with open('mpls_nodes_bounded.json', 'w') as f:\n    json.dump(bounded_nodes, f)",
+     "language": "python",
+     "metadata": {},
+     "outputs": [],
+     "prompt_number": 147
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": "for way in ways:\n    way_id = way.attrib['id']\n    way_nodes = []\n    for node in way.findall('nd'):\n        print node.attrib['ref']\n    break",
+     "language": "python",
+     "metadata": {},
+     "outputs": [
+      {
+       "output_type": "stream",
+       "stream": "stdout",
+       "text": "187928995\n30426610\n30426611\n30426613\n30426614\n30426615\n2090607356\n30426616\n30426617\n2090607352\n2090607351\n30426618\n2090607349\n30426619\n30426620\n30426621\n2090607335\n1931203392\n556966835\n2090607328\n2090607324\n30426623\n2090607323\n2090607322\n2090607321\n30426624\n30426625\n2090607319\n30426626\n2090607318\n2090607311\n30426627\n2090607308\n2090607307\n30426628\n2090607306\n2090607305\n2090607299\n30426630\n30426631\n592605480\n30426633\n637686024\n30426634\n1930958972\n30426635\n30426636\n30426637\n1930958969\n1930958968\n30426638\n1930958966\n30426639\n30426640\n556967000\n30426641\n30426643\n30426644\n30426645\n30426646\n30426647\n30426648\n30426649\n556967092\n30426650\n30426651\n30426652\n30426653\n637686018\n30426654\n30426655\n30426657\n30426658\n775432793\n"
+      }
+     ],
+     "prompt_number": 160
+    }
+   ],
+   "metadata": {}
+  }
+ ]
+}
