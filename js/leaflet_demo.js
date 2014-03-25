@@ -1,33 +1,49 @@
-var map = L.mapbox.map('map', 'mplewis.hjdng7eb');
-var markers = new L.MarkerClusterGroup();
+var iterationsPerLoop = 1;
+var maxFreshDots = 20;
 
 var locs = {
   home: { name: 'Triangle Fraternity', node: '33308096' },
   keller: { name: 'Keller Hall', node: '244111945' }
 };
 
-var icons = {
-  node: L.AwesomeMarkers.icon({
-    icon: 'circle-o',
-    markerColor: 'cadetblue',
-    prefix: 'fa'
-  }),
-  favorite: L.AwesomeMarkers.icon({
-    icon: 'star',
-    markerColor: 'blue',
-    prefix: 'fa'
-  }),
-  start: L.AwesomeMarkers.icon({
-    icon: 'flag-o',
-    markerColor: 'green',
-    prefix: 'fa'
-  }),
-  goal: L.AwesomeMarkers.icon({
-    icon: 'flag-checkered',
-    markerColor: 'red',
-    prefix: 'fa'
-  })
+var style = {
+
+  icon: {
+    node: L.AwesomeMarkers.icon({
+      icon: 'circle-o',
+      markerColor: 'cadetblue',
+      prefix: 'fa'
+    }),
+    favorite: L.AwesomeMarkers.icon({
+      icon: 'star',
+      markerColor: 'blue',
+      prefix: 'fa'
+    }),
+    start: L.AwesomeMarkers.icon({
+      icon: 'flag-o',
+      markerColor: 'green',
+      prefix: 'fa'
+    }),
+    goal: L.AwesomeMarkers.icon({
+      icon: 'flag-checkered',
+      markerColor: 'red',
+      prefix: 'fa'
+    })
+  },
+
+  dot: {
+    aged: {color: 'blue', opacity: 0.2},
+    fresh: {color: '#ff4400', opacity: 1}
+  },
+
+  path: {
+    final: {color: 'red', opacity: 0.5}
+  }
+
 };
+
+var map = L.mapbox.map('map', 'mplewis.hjdng7eb');
+var markers = new L.MarkerClusterGroup();
 
 function nodeCoords(node) {
   var coords;
@@ -66,7 +82,6 @@ function distNodes(nodeA, nodeB) {
 }
 
 function reconstructPath(cameFrom, currentNode) {
-  console.log('cameFrom', currentNode);
   if (currentNode in cameFrom) {
     return reconstructPath(cameFrom, cameFrom[currentNode]).concat(currentNode);
   } else {
@@ -75,8 +90,8 @@ function reconstructPath(cameFrom, currentNode) {
 }
 
 function astar(start, goal) {
-  L.marker(nodeCoords(start), {icon: icons.start}).addTo(map);
-  L.marker(nodeCoords(goal), {icon: icons.goal}).addTo(map);
+  L.marker(nodeCoords(start), {icon: style.icon.start}).addTo(map);
+  L.marker(nodeCoords(goal), {icon: style.icon.goal}).addTo(map);
   var closedSet = {};
   var openSet = {};
   openSet[start] = true;
@@ -89,48 +104,54 @@ function astar(start, goal) {
   var fScore = {};
   fScore[start] = gScore[start] + distNodes(start, goal);
 
-  var whileLoop = setInterval(function() {
-    var openSetUnsorted = _.keys(openSet);
-    var openSetSortedF = openSetUnsorted.sort(function(a, b) { return fScore[a] - fScore[b]; });
-    var current = openSetSortedF[0];
-    L.circle(nodeCoords(current), 1).addTo(map);
-    if (current == goal) {
-      clearInterval(whileLoop);
-      var path = reconstructPath(cameFrom, goal);
-      L.polyline(path.map(nodeCoords), {color: 'red'}).addTo(map);
-      return path;
-    }
+  var circles = [];
 
-    delete openSet[current];
-    openSetCount--;
-    closedSet[current] = true;
-    var adj = adjNodes(current);
-    for (var i = 0; i < adj.length; i++) {
-      var neighbor = adj[i];
-      if (neighbor in closedSet) {
-        continue;
+  var whileLoop = setInterval(function() {
+    for (var iterations = 0; iterations < iterationsPerLoop; iterations++) {
+      if (openSetCount < 1) {
+        clearInterval(whileLoop);
+        throw 'No path found from ' + start + ' to ' + goal;
       }
-      tentativeGScore = gScore[current] + distNodes(current, neighbor);
-      if (!(neighbor in openSet) || tentativeGScore < gScore[neighbor]) {
-        cameFrom[neighbor] = current;
-        gScore[neighbor] = tentativeGScore;
-        fScore[neighbor] = gScore[neighbor] + distNodes(neighbor, goal);
-        if (!(neighbor in openSet)) {
-          openSet[neighbor] = true;
-          openSetCount++;
+      var openSetUnsorted = _.keys(openSet);
+      var openSetSortedF = openSetUnsorted.sort(function(a, b) { return fScore[a] - fScore[b]; });
+      var current = openSetSortedF[0];
+      var circle = L.circle(nodeCoords(current), 1, style.dot.fresh).addTo(map);
+      circles.push(circle);
+      while (circles.length > maxFreshDots) {
+        circles.shift().setStyle(style.dot.aged);
+      }
+      if (current == goal) {
+        clearInterval(whileLoop);
+        circles.forEach(function(circle) {
+          circle.setStyle(style.dot.aged);
+        });
+        var path = reconstructPath(cameFrom, goal);
+        L.polyline(path.map(nodeCoords), style.path.final).addTo(map);
+        return path;
+      }
+
+      delete openSet[current];
+      openSetCount--;
+      closedSet[current] = true;
+      var adj = adjNodes(current);
+      for (var i = 0; i < adj.length; i++) {
+        var neighbor = adj[i];
+        if (neighbor in closedSet) {
+          continue;
+        }
+        tentativeGScore = gScore[current] + distNodes(current, neighbor);
+        if (!(neighbor in openSet) || tentativeGScore < gScore[neighbor]) {
+          cameFrom[neighbor] = current;
+          gScore[neighbor] = tentativeGScore;
+          fScore[neighbor] = gScore[neighbor] + distNodes(neighbor, goal);
+          if (!(neighbor in openSet)) {
+            openSet[neighbor] = true;
+            openSetCount++;
+          }
         }
       }
     }
-
-  }, 20);
-
-  throw 'No path found from ' + start + ' to ' + goal;
+  }, 0);
 }
 
-console.log(nodeCoords(locs.home.node));
-
-console.log(adjNodes(locs.home.node));
-
-console.log(distNodes(locs.home.node, locs.keller.node));
-
-console.log(astar(locs.home.node, locs.keller.node));
+astar(locs.home.node, locs.keller.node);
