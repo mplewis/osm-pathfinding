@@ -5,16 +5,7 @@ var locs = {
   triangle: {
     desc: 'Triangle Fraternity',
     coords: [44.983294, -93.237445]
-  },
-  keller: {
-    desc: 'Keller Hall',
-    coords: [44.974548, -93.232232]
   }
-};
-
-var nodes = {
-  sixAndTwelve: 33308096,
-  unionAndBeacon: 244111945
 };
 
 var nodeIcon = L.AwesomeMarkers.icon({
