@@ -24,14 +24,20 @@ _.values(locs).forEach(function(loc) {
   L.marker(loc.coords, {icon: favoriteIcon}).bindPopup(loc.desc).addTo(map);
 });
 
-$.get('data/mpls_nodes_bounded.json').then(function(data) {
-  _.pairs(data).forEach(function(locPair) {
-    var id = locPair[0];
-    var loc = locPair[1];
-    var marker = L.marker([loc.lat, loc.lon], {icon: nodeIcon})
-      .bindPopup('ID: ' + id);
-    markers.addLayer(marker);
-  });
+$.get('data/moa_visited.json').then(function(data) {
+  var timer;
+  timer = setInterval(function() {
+    if (data.length <= 0) {
+      clearInterval(timer);
+    }
+    loc = data.shift();
+    L.circle([loc.lat, loc.lon], 1, {opacity: 0.5}).addTo(map);
+  }, 5);
+});
+
+$.get('data/moa_path.json').then(function(data) {
+  pointList = data.map(function(loc) { return [loc.lat, loc.lon]; });
+  L.polyline(pointList, {color: 'red'}).addTo(map);
 });
 
 map.addLayer(markers);
