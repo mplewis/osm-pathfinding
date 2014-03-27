@@ -90,11 +90,11 @@ function reconstructPath(cameFrom, currentNode) {
 }
 
 function addStartFlag(coords) {
-  
+  L.marker(coords, {icon: style.icon.start}).addTo(map);
 }
 
 function addGoalFlag(coords) {
-  
+  L.marker(coords, {icon: style.icon.goal}).addTo(map);
 }
 
 var circles = [];
@@ -118,8 +118,8 @@ function displayPath(coordList) {
 }
 
 function astar(start, goal) {
-  L.marker(nodeCoords(start), {icon: style.icon.start}).addTo(map);
-  L.marker(nodeCoords(goal), {icon: style.icon.goal}).addTo(map);
+  addStartFlag(nodeCoords(start));
+  addGoalFlag(nodeCoords(goal));
   var closedSet = {};
   var openSet = {};
   openSet[start] = true;
