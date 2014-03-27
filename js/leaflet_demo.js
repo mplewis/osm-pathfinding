@@ -136,6 +136,7 @@ function astar(start, goal) {
     for (var iterations = 0; iterations < iterationsPerLoop; iterations++) {
       if (openSetCount < 1) {
         clearInterval(whileLoop);
+        ageAllNodes();
         throw 'No path found from ' + start + ' to ' + goal;
       }
       var openSetUnsorted = _.keys(openSet);
