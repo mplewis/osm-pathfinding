@@ -89,6 +89,34 @@ function reconstructPath(cameFrom, currentNode) {
   }
 }
 
+function addStartFlag(coords) {
+  
+}
+
+function addGoalFlag(coords) {
+  
+}
+
+var circles = [];
+
+function displayNode(coords) {
+  var circle = L.circle(coords, 1, style.dot.fresh).addTo(map);
+  circles.push(circle);
+  while (circles.length > maxFreshDots) {
+    circles.shift().setStyle(style.dot.aged);
+  }
+}
+
+function ageAllNodes() {
+  circles.forEach(function(circle) {
+    circle.setStyle(style.dot.aged);
+  });
+}
+
+function displayPath(coordList) {
+  L.polyline(coordList, style.path.final).addTo(map);
+}
+
 function astar(start, goal) {
   L.marker(nodeCoords(start), {icon: style.icon.start}).addTo(map);
   L.marker(nodeCoords(goal), {icon: style.icon.goal}).addTo(map);
@@ -104,8 +132,6 @@ function astar(start, goal) {
   var fScore = {};
   fScore[start] = gScore[start] + distNodes(start, goal);
 
-  var circles = [];
-
   var whileLoop = setInterval(function() {
     for (var iterations = 0; iterations < iterationsPerLoop; iterations++) {
       if (openSetCount < 1) {
@@ -115,18 +141,12 @@ function astar(start, goal) {
       var openSetUnsorted = _.keys(openSet);
       var openSetSortedF = openSetUnsorted.sort(function(a, b) { return fScore[a] - fScore[b]; });
       var current = openSetSortedF[0];
-      var circle = L.circle(nodeCoords(current), 1, style.dot.fresh).addTo(map);
-      circles.push(circle);
-      while (circles.length > maxFreshDots) {
-        circles.shift().setStyle(style.dot.aged);
-      }
+      displayNode(nodeCoords(current));
       if (current == goal) {
         clearInterval(whileLoop);
-        circles.forEach(function(circle) {
-          circle.setStyle(style.dot.aged);
-        });
+        ageAllNodes();
         var path = reconstructPath(cameFrom, goal);
-        L.polyline(path.map(nodeCoords), style.path.final).addTo(map);
+        displayPath(path.map(nodeCoords));
         return path;
       }
 
