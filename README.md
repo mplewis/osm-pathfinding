@@ -38,7 +38,7 @@ We are using Boostrap to create a responsive front-end for the visualizations. W
 #### Redis
 1. Install Redis following directions at [redis.io](http://redis.io/)
 
-2. Download the [node info database dump](https://dl.dropboxusercontent.com/u/40265/dump.rdb). This contains gps coordinates of each node, as well as adjacency sets for each node.
+2. Download the [node info Redis database dump](https://dl.dropboxusercontent.com/u/40265/all_mpls_dump.rdb.zip). This contains gps coordinates of each node, as well as adjacency sets for each node.
 
 3. Start `redis-server` in the same folder as the database dump with no arguments. Redis will automatically load the dump on startup.
 
