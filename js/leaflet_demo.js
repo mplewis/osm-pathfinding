@@ -148,7 +148,7 @@ function astar(start, goal) {
         ageAllNodes();
         var path = reconstructPath(cameFrom, goal);
         displayPath(path.map(nodeCoords));
-        return path;
+        return;
       }
 
       delete openSet[current];
