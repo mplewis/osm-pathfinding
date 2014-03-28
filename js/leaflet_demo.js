@@ -213,4 +213,42 @@ function ucs(start, goal) {
   }, 0);
 }
 
+function dfs(start, goal) {
+  addStartFlag(nodeCoords(start));
+  addGoalFlag(nodeCoords(goal));
+  var openList = [];
+  openList.push(start);
+  var closedSet = {};
+  closedSet[start] = true;
+  var cameFrom = {};
+
+  var whileLoop = setInterval(function() {
+    for (var iterations = 0; iterations < iterationsPerLoop; iterations++) {
+      if (openList.length < 1) {
+        clearInterval(whileLoop);
+        ageAllNodes();
+        throw 'No path found from ' + start + ' to ' + goal;
+      }
+      var current = openList.pop();
+      console.log(current);
+      closedSet[current] = true;
+    
+      displayNode(nodeCoords(current));
+      if (current == goal) {
+        clearInterval(whileLoop);
+        ageAllNodes();
+        var path = reconstructPath(cameFrom, goal);
+        displayPath(path.map(nodeCoords));
+        return;
+      }
+      var adj = adjNodes(current).filter(function(node) { return !(node in closedSet); });
+      adj.forEach(function(node) {
+        cameFrom[node] = current;
+      });
+    
+      openList = openList.concat(adj);
+    }
+  }, 0);
+}
+
 astar(locs.home.node, locs.keller.node);
