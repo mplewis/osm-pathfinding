@@ -303,5 +303,3 @@ function dfs(start, goal) {
     }
   }, 0);
 }
-
-astar(locs.home.node, locs.keller.node);
