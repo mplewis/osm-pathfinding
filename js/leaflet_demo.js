@@ -45,6 +45,13 @@ var style = {
 var map = L.mapbox.map('map', 'mplewis.hjdng7eb');
 var markers = new L.MarkerClusterGroup();
 
+function truncateDecimals(number, digits) {
+    var multiplier = Math.pow(10, digits);
+    var adjustedNum = number * multiplier;
+    var truncatedNum = Math[adjustedNum < 0 ? 'ceil' : 'floor'](adjustedNum);
+    return truncatedNum / multiplier;
+}
+
 function nodeCoords(node) {
   var coords;
   var reqUrl = 'http://localhost:7379/GET/node:' + node;
@@ -62,6 +69,23 @@ function nodeCoords(node) {
 function adjNodes(node) {
   var adj;
   var reqUrl = 'http://localhost:7379/SMEMBERS/nodeadj:' + node;
+  $.ajax({
+    url: reqUrl,
+    dataType: 'json',
+    async: false,
+    success: function(data) {
+      adj = data.SMEMBERS;
+    }
+  });
+  return adj;
+}
+
+function partitionNodes(lat, lon, decimalPlaces) {
+  var adj;
+  var latTrunc = truncateDecimals(lat, decimalPlaces);
+  var lonTrunc = truncateDecimals(lon, decimalPlaces);
+  var partition = latTrunc.toString() + ':' + lonTrunc.toString();
+  var reqUrl = 'http://localhost:7379/SMEMBERS/part:' + partition;
   $.ajax({
     url: reqUrl,
     dataType: 'json',
