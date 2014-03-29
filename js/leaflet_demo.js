@@ -1,5 +1,6 @@
 var iterationsPerLoop = 1;
 var maxFreshDots = 20;
+var partitionDecimalPlaces = 3;
 
 var locs = {
   home: { name: 'Triangle Fraternity', node: '33308096' },
@@ -45,6 +46,59 @@ var style = {
 var map = L.mapbox.map('map', 'mplewis.hjdng7eb');
 var markers = new L.MarkerClusterGroup();
 
+var initialStartLoc = locs.home;
+var initialGoalLoc = locs.keller;
+
+var startNode = initialStartLoc.node;
+var goalNode = initialGoalLoc.node;
+
+var startCoords = nodeCoords(startNode);
+var goalCoords = nodeCoords(goalNode);
+
+var startFlag = L.marker(startCoords, {
+  icon: style.icon.start,
+  draggable: true
+}).addTo(map);
+var goalFlag = L.marker(goalCoords, {
+  icon: style.icon.goal,
+  draggable: true
+}).addTo(map);
+
+startFlag.on('dragend', function(e) {
+  var newCoords = startFlag.getLatLng();
+  startCoords = [newCoords.lat, newCoords.lng];
+  var nearbyNodes = partitionNodes(startCoords, partitionDecimalPlaces);
+  if (nearbyNodes.length > 0) {
+    startNode = getNearestNode(startCoords, nearbyNodes);
+    addCircle(nodeCoords(startNode));
+  }
+  deleteAllCircles();
+  astar(startNode, goalNode);
+});
+
+goalFlag.on('dragend', function(e) {
+  var newCoords = goalFlag.getLatLng();
+  goalCoords = [newCoords.lat, newCoords.lng];
+  var nearbyNodes = partitionNodes(goalCoords, partitionDecimalPlaces);
+  if (nearbyNodes.length > 0) {
+    goalNode = getNearestNode(goalCoords, nearbyNodes);
+    addCircle(nodeCoords(goalNode));
+  }
+  deleteAllCircles();
+  astar(startNode, goalNode);
+});
+
+function getNearestNode(coords, nodeList) {
+  console.log(coords, nodeList);
+  return nodeList.reduce(function(prev, curr) {
+    if (distLatLon(nodeCoords(prev), startCoords) < distLatLon(nodeCoords(curr), startCoords)) {
+      return prev;
+    } else {
+      return curr;
+    }
+  });
+}
+
 function truncateDecimals(number, digits) {
     var multiplier = Math.pow(10, digits);
     var adjustedNum = number * multiplier;
@@ -80,10 +134,10 @@ function adjNodes(node) {
   return adj;
 }
 
-function partitionNodes(lat, lon, decimalPlaces) {
+function partitionNodes(coords, decimalPlaces) {
   var adj;
-  var latTrunc = truncateDecimals(lat, decimalPlaces);
-  var lonTrunc = truncateDecimals(lon, decimalPlaces);
+  var latTrunc = truncateDecimals(coords[0], decimalPlaces);
+  var lonTrunc = truncateDecimals(coords[1], decimalPlaces);
   var partition = latTrunc.toString() + ':' + lonTrunc.toString();
   var reqUrl = 'http://localhost:7379/SMEMBERS/part:' + partition;
   $.ajax({
@@ -113,28 +167,29 @@ function reconstructPath(cameFrom, currentNode) {
   }
 }
 
-function addStartFlag(coords) {
-  L.marker(coords, {icon: style.icon.start}).addTo(map);
-}
+var allCircles = [];
+var freshCircles = [];
 
-function addGoalFlag(coords) {
-  L.marker(coords, {icon: style.icon.goal}).addTo(map);
-}
-
-var circles = [];
-
-function displayNode(coords) {
+function addCircle(coords) {
   var circle = L.circle(coords, 1, style.dot.fresh).addTo(map);
-  circles.push(circle);
-  while (circles.length > maxFreshDots) {
-    circles.shift().setStyle(style.dot.aged);
+  allCircles.push(circle);
+  freshCircles.push(circle);
+  while (freshCircles.length > maxFreshDots) {
+    freshCircles.shift().setStyle(style.dot.aged);
   }
 }
 
-function ageAllNodes() {
-  circles.forEach(function(circle) {
+function ageAllCircles() {
+  freshCircles.forEach(function(circle) {
     circle.setStyle(style.dot.aged);
   });
+}
+
+function deleteAllCircles() {
+  freshCircles = [];
+  while (allCircles.length > 0) {
+    map.removeLayer(allCircles.shift());
+  }
 }
 
 function displayPath(coordList) {
@@ -142,8 +197,6 @@ function displayPath(coordList) {
 }
 
 function astar(start, goal) {
-  addStartFlag(nodeCoords(start));
-  addGoalFlag(nodeCoords(goal));
   var closedSet = {};
   var openSet = {};
   openSet[start] = true;
@@ -160,16 +213,16 @@ function astar(start, goal) {
     for (var iterations = 0; iterations < iterationsPerLoop; iterations++) {
       if (openSetCount < 1) {
         clearInterval(whileLoop);
-        ageAllNodes();
+        ageAllCircles();
         throw 'No path found from ' + start + ' to ' + goal;
       }
       var openSetUnsorted = _.keys(openSet);
       var openSetSortedF = openSetUnsorted.sort(function(a, b) { return fScore[a] - fScore[b]; });
       var current = openSetSortedF[0];
-      displayNode(nodeCoords(current));
+      addCircle(nodeCoords(current));
       if (current == goal) {
         clearInterval(whileLoop);
-        ageAllNodes();
+        ageAllCircles();
         var path = reconstructPath(cameFrom, goal);
         displayPath(path.map(nodeCoords));
         return;
@@ -200,8 +253,6 @@ function astar(start, goal) {
 }
 
 function ucs(start, goal) {
-  addStartFlag(nodeCoords(start));
-  addGoalFlag(nodeCoords(goal));
   var openList = [];
   openList.push(start);
   var closedSet = {};
@@ -212,17 +263,17 @@ function ucs(start, goal) {
     for (var iterations = 0; iterations < iterationsPerLoop; iterations++) {
       if (openList.length < 1) {
         clearInterval(whileLoop);
-        ageAllNodes();
+        ageAllCircles();
         throw 'No path found from ' + start + ' to ' + goal;
       }
       var current = openList.shift();
       console.log(current);
       closedSet[current] = true;
     
-      displayNode(nodeCoords(current));
+      addCircle(nodeCoords(current));
       if (current == goal) {
         clearInterval(whileLoop);
-        ageAllNodes();
+        ageAllCircles();
         var path = reconstructPath(cameFrom, goal);
         displayPath(path.map(nodeCoords));
         return;
@@ -238,8 +289,6 @@ function ucs(start, goal) {
 }
 
 function gbfs(start, goal) {
-  addStartFlag(nodeCoords(start));
-  addGoalFlag(nodeCoords(goal));
   var closedSet = {};
   var openSet = {};
   openSet[start] = true;
@@ -253,16 +302,16 @@ function gbfs(start, goal) {
     for (var iterations = 0; iterations < iterationsPerLoop; iterations++) {
       if (openSetCount < 1) {
         clearInterval(whileLoop);
-        ageAllNodes();
+        ageAllCircles();
         throw 'No path found from ' + start + ' to ' + goal;
       }
       var openSetUnsorted = _.keys(openSet);
       var openSetSortedF = openSetUnsorted.sort(function(a, b) { return fScore[a] - fScore[b]; });
       var current = openSetSortedF[0];
-      displayNode(nodeCoords(current));
+      addCircle(nodeCoords(current));
       if (current == goal) {
         clearInterval(whileLoop);
-        ageAllNodes();
+        ageAllCircles();
         var path = reconstructPath(cameFrom, goal);
         displayPath(path.map(nodeCoords));
         return;
@@ -291,8 +340,6 @@ function gbfs(start, goal) {
 }
 
 function dfs(start, goal) {
-  addStartFlag(nodeCoords(start));
-  addGoalFlag(nodeCoords(goal));
   var openList = [];
   openList.push(start);
   var closedSet = {};
@@ -303,17 +350,17 @@ function dfs(start, goal) {
     for (var iterations = 0; iterations < iterationsPerLoop; iterations++) {
       if (openList.length < 1) {
         clearInterval(whileLoop);
-        ageAllNodes();
+        ageAllCircles();
         throw 'No path found from ' + start + ' to ' + goal;
       }
       var current = openList.pop();
       console.log(current);
       closedSet[current] = true;
     
-      displayNode(nodeCoords(current));
+      addCircle(nodeCoords(current));
       if (current == goal) {
         clearInterval(whileLoop);
-        ageAllNodes();
+        ageAllCircles();
         var path = reconstructPath(cameFrom, goal);
         displayPath(path.map(nodeCoords));
         return;
