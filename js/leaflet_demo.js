@@ -213,4 +213,57 @@ function ucs(start, goal) {
   }, 0);
 }
 
+function gbfs(start, goal) {
+  addStartFlag(nodeCoords(start));
+  addGoalFlag(nodeCoords(goal));
+  var closedSet = {};
+  var openSet = {};
+  openSet[start] = true;
+  var openSetCount = 1;
+  var cameFrom = {};
+
+  var fScore = {};
+  fScore[start] = distNodes(start, goal);
+
+  var whileLoop = setInterval(function() {
+    for (var iterations = 0; iterations < iterationsPerLoop; iterations++) {
+      if (openSetCount < 1) {
+        clearInterval(whileLoop);
+        ageAllNodes();
+        throw 'No path found from ' + start + ' to ' + goal;
+      }
+      var openSetUnsorted = _.keys(openSet);
+      var openSetSortedF = openSetUnsorted.sort(function(a, b) { return fScore[a] - fScore[b]; });
+      var current = openSetSortedF[0];
+      displayNode(nodeCoords(current));
+      if (current == goal) {
+        clearInterval(whileLoop);
+        ageAllNodes();
+        var path = reconstructPath(cameFrom, goal);
+        displayPath(path.map(nodeCoords));
+        return;
+      }
+
+      delete openSet[current];
+      openSetCount--;
+      closedSet[current] = true;
+      var adj = adjNodes(current);
+      for (var i = 0; i < adj.length; i++) {
+        var neighbor = adj[i];
+        if (neighbor in closedSet) {
+          continue;
+        }
+        if (!(neighbor in openSet)) {
+          cameFrom[neighbor] = current;
+          fScore[neighbor] = distNodes(neighbor, goal);
+          if (!(neighbor in openSet)) {
+            openSet[neighbor] = true;
+            openSetCount++;
+          }
+        }
+      }
+    }
+  }, 0);
+}
+
 astar(locs.home.node, locs.keller.node);
