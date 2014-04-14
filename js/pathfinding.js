@@ -73,63 +73,7 @@ function displayPath(coordList) {
   L.polyline(coordList, style.path.final).addTo(map);
 }
 
-function astar(start, goal) {
-  addStartFlag(nodeCoords(start));
-  addGoalFlag(nodeCoords(goal));
-  var closedSet = {};
-  var openSet = {};
-  openSet[start] = true;
-  var openSetCount = 1;
-  var cameFrom = {};
 
-  var gScore = {};
-  gScore[start] = 0;
-
-  var fScore = {};
-  fScore[start] = gScore[start] + distNodes(start, goal);
-
-  var whileLoop = setInterval(function() {
-    for (var iterations = 0; iterations < iterationsPerLoop; iterations++) {
-      if (openSetCount < 1) {
-        clearInterval(whileLoop);
-        ageAllNodes();
-        throw 'No path found from ' + start + ' to ' + goal;
-      }
-      var openSetUnsorted = _.keys(openSet);
-      var openSetSortedF = openSetUnsorted.sort(function(a, b) { return fScore[a] - fScore[b]; });
-      var current = openSetSortedF[0];
-      displayNode(nodeCoords(current));
-      if (current == goal) {
-        clearInterval(whileLoop);
-        ageAllNodes();
-        var path = reconstructPath(cameFrom, goal);
-        displayPath(path.map(nodeCoords));
-        return;
-      }
-
-      delete openSet[current];
-      openSetCount--;
-      closedSet[current] = true;
-      var adj = adjNodes(current);
-      for (var i = 0; i < adj.length; i++) {
-        var neighbor = adj[i];
-        if (neighbor in closedSet) {
-          continue;
-        }
-        tentativeGScore = gScore[current] + distNodes(current, neighbor);
-        if (!(neighbor in openSet) || tentativeGScore < gScore[neighbor]) {
-          cameFrom[neighbor] = current;
-          gScore[neighbor] = tentativeGScore;
-          fScore[neighbor] = gScore[neighbor] + distNodes(neighbor, goal);
-          if (!(neighbor in openSet)) {
-            openSet[neighbor] = true;
-            openSetCount++;
-          }
-        }
-      }
-    }
-  }, 0);
-}
 
 function ucs(start, goal) {
   addStartFlag(nodeCoords(start));
@@ -228,7 +172,7 @@ worker.addEventListener('message', function(ev) {
 
 worker.postMessage({
   task: 'search',
-  type: 'gbfs',
+  type: 'astar',
   start: locs.home.node,
   goal: locs.keller.node
 });
