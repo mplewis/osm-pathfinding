@@ -45,14 +45,6 @@ var style = {
 var map = L.mapbox.map('map', 'mplewis.hjdng7eb');
 var markers = new L.MarkerClusterGroup();
 
-function reconstructPath(cameFrom, currentNode) {
-  if (currentNode in cameFrom) {
-    return reconstructPath(cameFrom, cameFrom[currentNode]).concat(currentNode);
-  } else {
-    return [currentNode];
-  }
-}
-
 function addStartFlag(coords) {
   L.marker(coords, {icon: style.icon.start}).addTo(map);
 }
@@ -218,7 +210,20 @@ function dfs(start, goal) {
 var worker = new Worker('js/webworker.js');
 
 worker.addEventListener('message', function(ev) {
-  console.log('Worker said:', ev.data);
+  var data = ev.data;
+  var task = data.task;
+  if (task === 'addStartFlag') {
+    addStartFlag(data.coords);
+  } else if (task === 'addGoalFlag') {
+    addGoalFlag(data.coords);
+  } else if (task === 'displayNode') {
+    displayNode(data.coords);
+  } else if (task === 'pathFound') {
+    ageAllNodes();
+    displayPath(data.path);
+  } else if (task === 'noPathFound') {
+    ageAllNodes();
+  }
 }, false);
 
 worker.postMessage({
