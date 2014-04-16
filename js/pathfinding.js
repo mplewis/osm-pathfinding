@@ -42,6 +42,18 @@ var style = {
 
 };
 
+function nodeCoords(node) {
+  var reqUrl = 'http://localhost:7379/GET/node:' + node;
+  var req = new XMLHttpRequest();
+  req.open('GET', reqUrl, false);
+  req.send();
+  if (req.readyState === 4 && req.status === 200) {
+    rawData = JSON.parse(req.responseText).GET;
+    coords = rawData.split(':').map(function(coord) { return parseFloat(coord); });
+    return coords;
+  }
+}
+
 var map = L.mapbox.map('map', 'mplewis.hjdng7eb');
 var markers = new L.MarkerClusterGroup();
 
