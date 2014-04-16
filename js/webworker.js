@@ -76,6 +76,7 @@ function astar(start, goal) {
     if (openSetCount < 1) {
       looping = false;
       noPathFound();
+      return;
     }
     var openSetUnsorted = [];
     for (var k in openSet) openSetUnsorted.push(k);
