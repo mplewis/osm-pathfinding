@@ -166,6 +166,78 @@ function gbfs(start, goal) {
   }
 }
 
+function ucs(start, goal) {
+  addStartFlag(nodeCoords(start));
+  addGoalFlag(nodeCoords(goal));
+  var openList = [];
+  openList.push(start);
+  var closedSet = {};
+  closedSet[start] = true;
+  var cameFrom = {};
+
+  var looping = true;
+  while (looping) {
+    if (openList.length < 1) {
+      looping = false;
+      noPathFound();
+      return;
+    }
+    var current = openList.shift();
+    closedSet[current] = true;
+  
+    displayNode(nodeCoords(current));
+    if (current == goal) {
+      looping = false;
+      var path = reconstructPath(cameFrom, goal);
+      var pathCoords = path.map(nodeCoords);
+      pathFound(pathCoords);
+      return;
+    }
+    var adj = adjNodes(current).filter(function(node) { return !(node in closedSet); });
+    adj.forEach(function(node) {
+      cameFrom[node] = current;
+    });
+  
+    openList = openList.concat(adj);
+  }
+}
+
+function dfs(start, goal) {
+  addStartFlag(nodeCoords(start));
+  addGoalFlag(nodeCoords(goal));
+  var openList = [];
+  openList.push(start);
+  var closedSet = {};
+  closedSet[start] = true;
+  var cameFrom = {};
+
+  var looping = true;
+  while (looping) {
+    if (openList.length < 1) {
+      looping = false;
+      noPathFound();
+      return;
+    }
+    var current = openList.pop();
+    closedSet[current] = true;
+  
+    displayNode(nodeCoords(current));
+    if (current == goal) {
+      looping = false;
+      var path = reconstructPath(cameFrom, goal);
+      var pathCoords = path.map(nodeCoords);
+      pathFound(pathCoords);
+      return;
+    }
+    var adj = adjNodes(current).filter(function(node) { return !(node in closedSet); });
+    adj.forEach(function(node) {
+      cameFrom[node] = current;
+    });
+  
+    openList = openList.concat(adj);
+  }
+}
+
 self.addEventListener('message', function(ev) {
   var msg = ev.data;
   if (msg.task === 'search') {
@@ -173,6 +245,10 @@ self.addEventListener('message', function(ev) {
       gbfs(msg.start, msg.goal);
     } else if (msg.type === 'astar') {
       astar(msg.start, msg.goal);
+    } else if (msg.type === 'ucs') {
+      ucs(msg.start, msg.goal);
+    } else if (msg.type === 'dfs') {
+      dfs(msg.start, msg.goal);
     }
   }
 }, false);
