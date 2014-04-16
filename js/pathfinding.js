@@ -57,12 +57,21 @@ function nodeCoords(node) {
 var map = L.mapbox.map('map', 'mplewis.hjdng7eb');
 var markers = new L.MarkerClusterGroup();
 
+var startFlag = null;
+var goalFlag = null;
+
 function addStartFlag(coords) {
-  L.marker(coords, {icon: style.icon.start}).addTo(map);
+  if (startFlag) {
+    map.removeLayer(startFlag);
+  }
+  startFlag = L.marker(coords, {icon: style.icon.start}).addTo(map);
 }
 
 function addGoalFlag(coords) {
-  L.marker(coords, {icon: style.icon.goal}).addTo(map);
+  if (goalFlag) {
+    map.removeLayer(goalFlag);
+  }
+  goalFlag = L.marker(coords, {icon: style.icon.goal}).addTo(map);
 }
 
 var circles = [];
