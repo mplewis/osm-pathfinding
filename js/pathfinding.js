@@ -103,10 +103,3 @@ worker.addEventListener('message', function(ev) {
     ageAllNodes();
   }
 }, false);
-
-worker.postMessage({
-  task: 'search',
-  type: 'astar',
-  start: locs.home.node,
-  goal: locs.keller.node
-});
