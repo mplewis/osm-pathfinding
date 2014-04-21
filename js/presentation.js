@@ -60,38 +60,82 @@ var markers = new L.MarkerClusterGroup();
 var startFlag = null;
 var goalFlag = null;
 
-function addStartFlag(coords) {
+function removeStartFlag() {
   if (startFlag) {
     map.removeLayer(startFlag);
   }
+  startFlag = null;
+}
+
+function removeGoalFlag() {
+  if (goalFlag) {
+    map.removeLayer(goalFlag);
+  }
+  goalFlag = null;
+}
+
+function addStartFlag(coords) {
+  removeStartFlag();
   startFlag = L.marker(coords, {icon: style.icon.start}).addTo(map);
 }
 
 function addGoalFlag(coords) {
-  if (goalFlag) {
-    map.removeLayer(goalFlag);
-  }
+  removeGoalFlag();
   goalFlag = L.marker(coords, {icon: style.icon.goal}).addTo(map);
 }
 
-var circles = [];
+function zoomMapToFlags() {
+  if (startFlag && goalFlag) {
+    var group = new L.featureGroup([startFlag, goalFlag]);
+    map.fitBounds(group.getBounds());
+  } else if (startFlag) {
+    map.setView(startFlag.getLatLng());
+  } else if (goalFlag) {
+    map.setView(goalFlag.getLatLng());
+  }
+}
+
+var newCircles = [];
+var allCircles = [];
 
 function displayNode(coords) {
   var circle = L.circle(coords, 1, style.dot.fresh).addTo(map);
-  circles.push(circle);
-  while (circles.length > maxFreshDots) {
-    circles.shift().setStyle(style.dot.aged);
+  allCircles.push(circle);
+  newCircles.push(circle);
+  while (newCircles.length > maxFreshDots) {
+    newCircles.shift().setStyle(style.dot.aged);
   }
 }
 
 function ageAllNodes() {
-  circles.forEach(function(circle) {
+  newCircles.forEach(function(circle) {
     circle.setStyle(style.dot.aged);
   });
 }
 
+function removeAllNodes() {
+  allCircles.forEach(function(circle) {
+    map.removeLayer(circle);
+  });
+}
+
+var displayedPath = null;
+
+function removeDisplayedPath() {
+  if (displayedPath) {
+    map.removeLayer(displayedPath);
+  }
+  displayedPath = null;
+}
+
 function displayPath(coordList) {
-  L.polyline(coordList, style.path.final).addTo(map);
+  removeDisplayedPath();
+  displayedPath = L.polyline(coordList, style.path.final).addTo(map);
+}
+
+function clearMap() {
+  removeAllNodes();
+  removeDisplayedPath();
 }
 
 var worker = new Worker('js/webworker.js');
