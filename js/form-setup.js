@@ -11,9 +11,21 @@ var algoPicked = false;
 var startPicked = false;
 var goalPicked = false;
 
+function enableStartButton() {  
+  $('button#start-btn').removeAttr('disabled');
+}
+
+function enableStopButton() {
+  $('button#stop-btn').removeAttr('disabled');
+}
+
+function disableStopButton() {  
+  $('button#stop-btn').attr('disabled', true);
+}
+
 function checkStartButton() {
   if (algoPicked && startPicked && goalPicked) {
-    $('button#start-btn').removeAttr('disabled');
+    enableStartButton();
   }
 }
 
@@ -41,6 +53,7 @@ $('select#goal-sel').change(function() {
 });
 
 $('button#start-btn').click(function() {
+  enableStopButton();
   clearMap();
   var algo = $('select#algo-sel').val();
   var startNode = $('select#start-sel').val();
@@ -54,7 +67,8 @@ $('button#start-btn').click(function() {
 });
 
 $('button#stop-btn').click(function() {
-
+  disableStopButton();
+  restartWorker();
 });
 
 $('button#clear-btn').click(function() {
