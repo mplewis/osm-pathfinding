@@ -138,21 +138,33 @@ function clearMap() {
   removeDisplayedPath();
 }
 
-var worker = new Worker('js/webworker.js');
+var worker = null;
 
-worker.addEventListener('message', function(ev) {
-  var data = ev.data;
-  var task = data.task;
-  if (task === 'addStartFlag') {
-    addStartFlag(data.coords);
-  } else if (task === 'addGoalFlag') {
-    addGoalFlag(data.coords);
-  } else if (task === 'displayNode') {
-    displayNode(data.coords);
-  } else if (task === 'pathFound') {
-    ageAllNodes();
-    displayPath(data.path);
-  } else if (task === 'noPathFound') {
-    ageAllNodes();
-  }
-}, false);
+function startWorker() {
+  worker = new Worker('js/webworker.js');
+  worker.addEventListener('message', function(ev) {
+    var data = ev.data;
+    var task = data.task;
+    if (task === 'addStartFlag') {
+      addStartFlag(data.coords);
+    } else if (task === 'addGoalFlag') {
+      addGoalFlag(data.coords);
+    } else if (task === 'displayNode') {
+      displayNode(data.coords);
+    } else if (task === 'pathFound') {
+      ageAllNodes();
+      displayPath(data.path);
+      disableStopButton();
+    } else if (task === 'noPathFound') {
+      ageAllNodes();
+      disableStopButton();
+    }
+  }, false);
+}
+
+function restartWorker() {
+  worker.terminate();
+  startWorker();
+}
+
+startWorker();
