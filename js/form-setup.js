@@ -11,15 +11,19 @@ var algoPicked = false;
 var startPicked = false;
 var goalPicked = false;
 
-function enableStartButton() {  
+function enableStartButton() {
   $('button#start-btn').removeAttr('disabled');
+}
+
+function disableStartButton() {
+  $('button#start-btn').attr('disabled', true);
 }
 
 function enableStopButton() {
   $('button#stop-btn').removeAttr('disabled');
 }
 
-function disableStopButton() {  
+function disableStopButton() {
   $('button#stop-btn').attr('disabled', true);
 }
 
@@ -53,6 +57,7 @@ $('select#goal-sel').change(function() {
 });
 
 $('button#start-btn').click(function() {
+  disableStartButton();
   enableStopButton();
   clearMap();
   var algo = $('select#algo-sel').val();
@@ -68,6 +73,7 @@ $('button#start-btn').click(function() {
 
 $('button#stop-btn').click(function() {
   disableStopButton();
+  enableStartButton();
   restartWorker();
 });
 

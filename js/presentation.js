@@ -155,9 +155,11 @@ function startWorker() {
       ageAllNodes();
       displayPath(data.path);
       disableStopButton();
+      enableStartButton();
     } else if (task === 'noPathFound') {
       ageAllNodes();
       disableStopButton();
+      enableStartButton();
     }
   }, false);
 }
