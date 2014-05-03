@@ -1,10 +1,5 @@
-var iterationsPerLoop = 1;
+var nodeDataUrl = '/data/nodes.json';
 var maxFreshDots = 20;
-
-var locs = {
-  home: { name: 'Triangle Fraternity', node: '33308096' },
-  keller: { name: 'Keller Hall', node: '244111945' }
-};
 
 var style = {
 
@@ -42,16 +37,23 @@ var style = {
 
 };
 
-function nodeCoords(node) {
-  var reqUrl = 'http://localhost:7379/GET/node:' + node;
-  var req = new XMLHttpRequest();
-  req.open('GET', reqUrl, false);
-  req.send();
-  if (req.readyState === 4 && req.status === 200) {
-    rawData = JSON.parse(req.responseText).GET;
-    coords = rawData.split(':').map(function(coord) { return parseFloat(coord); });
-    return coords;
+var cachedNodes = null;
+function getNodes() {
+  if (!cachedNodes) {
+    $.ajax({
+      url: nodeDataUrl,
+      dataType: 'json',
+      async: false,
+      success: function(data) {
+        cachedNodes = data;
+      }
+    });
   }
+  return cachedNodes;
+}
+
+function nodeCoords(nodeId) {
+  return getNodes()[nodeId];
 }
 
 var map = L.mapbox.map('map', 'mplewis.hjdng7eb');
@@ -82,6 +84,10 @@ function addStartFlag(coords) {
 function addGoalFlag(coords) {
   removeGoalFlag();
   goalFlag = L.marker(coords, {icon: style.icon.goal}).addTo(map);
+}
+
+function addLocFlag(coords) {
+  L.marker(coords, {icon: style.icon.favorite}).addTo(map);
 }
 
 function zoomMapToFlags() {
@@ -142,6 +148,10 @@ var worker = null;
 
 function startWorker() {
   worker = new Worker('js/webworker.js');
+  worker.postMessage({
+    task: 'loadNodes',
+    nodes: getNodes()
+  });
   worker.addEventListener('message', function(ev) {
     var data = ev.data;
     var task = data.task;

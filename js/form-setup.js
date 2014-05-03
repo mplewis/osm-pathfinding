@@ -1,7 +1,13 @@
 $.getJSON('data/locs.json', function(locs) {
   locs.forEach(function(loc) {
+    var coords = nodeCoords(loc.node);
+    // Skip adding location if node isn't found in getNodes()
+    if (!coords) {
+      return;
+    }
     var newOption = $('<option>').text(loc.name).val(loc.node);
     $('select.loc').append(newOption);
+    addLocFlag(nodeCoords(loc.node));
   });
 }).then(function() {
   $('select').chosen();

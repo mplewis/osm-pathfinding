@@ -1,23 +1,13 @@
-function nodeCoords(node) {
-  var reqUrl = 'http://localhost:7379/GET/node:' + node;
-  var req = new XMLHttpRequest();
-  req.open('GET', reqUrl, false);
-  req.send();
-  if (req.readyState === 4 && req.status === 200) {
-    rawData = JSON.parse(req.responseText).GET;
-    coords = rawData.split(':').map(function(coord) { return parseFloat(coord); });
-    return coords;
-  }
+var nodes;
+
+function nodeCoords(nodeID) {
+  var node = nodes[nodeID];
+  return [node.lat, node.lon];
 }
 
-function adjNodes(node) {
-  var reqUrl = 'http://localhost:7379/SMEMBERS/nodeadj:' + node;
-  var req = new XMLHttpRequest();
-  req.open('GET', reqUrl, false);
-  req.send();
-  if (req.readyState === 4 && req.status === 200) {
-    return JSON.parse(req.responseText).SMEMBERS;
-  }
+function adjNodes(nodeID) {
+  var node = nodes[nodeID];
+  return node.adj;
 }
 
 function distLatLon(latlonA, latlonB) {
@@ -251,5 +241,7 @@ self.addEventListener('message', function(ev) {
     } else if (msg.type === 'dfs') {
       dfs(msg.start, msg.goal);
     }
+  } else if (msg.task === 'loadNodes') {
+    nodes = msg.nodes;
   }
 }, false);
