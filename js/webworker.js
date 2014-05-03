@@ -174,7 +174,6 @@ function ucs(start, goal) {
       return;
     }
     var current = openList.shift();
-    closedSet[current] = true;
   
     displayNode(nodeCoords(current));
     if (current == goal) {
@@ -187,6 +186,7 @@ function ucs(start, goal) {
     var adj = adjNodes(current).filter(function(node) { return !(node in closedSet); });
     adj.forEach(function(node) {
       cameFrom[node] = current;
+      closedSet[node] = true;
     });
   
     openList = openList.concat(adj);
