@@ -104,6 +104,64 @@ function astar(start, goal) {
   }
 }
 
+function bfs(start, goal) {
+  addStartFlag(nodeCoords(start));
+  addGoalFlag(nodeCoords(goal));
+  var closedSet = {};
+  var openSet = {};
+  openSet[start] = true;
+  var openSetCount = 1;
+  var cameFrom = {};
+
+  var gScore = {};
+  gScore[start] = 0;
+
+  var fScore = {};
+  fScore[start] = gScore[start];
+
+  var looping = true;
+  while (looping) {
+    if (openSetCount < 1) {
+      looping = false;
+      noPathFound();
+      return;
+    }
+    var openSetUnsorted = [];
+    for (var k in openSet) openSetUnsorted.push(k);
+    var openSetSortedF = openSetUnsorted.sort(function(a, b) { return fScore[a] - fScore[b]; });
+    var current = openSetSortedF[0];
+    displayNode(nodeCoords(current));
+    if (current == goal) {
+      looping = false;
+      var path = reconstructPath(cameFrom, goal);
+      var pathCoords = path.map(nodeCoords);
+      pathFound(pathCoords);
+      return;
+    }
+
+    delete openSet[current];
+    openSetCount--;
+    closedSet[current] = true;
+    var adj = adjNodes(current);
+    for (var i = 0; i < adj.length; i++) {
+      var neighbor = adj[i];
+      if (neighbor in closedSet) {
+        continue;
+      }
+      tentativeGScore = gScore[current] + distNodes(current, neighbor);
+      if (!(neighbor in openSet) || tentativeGScore < gScore[neighbor]) {
+        cameFrom[neighbor] = current;
+        gScore[neighbor] = tentativeGScore;
+        fScore[neighbor] = gScore[neighbor];
+        if (!(neighbor in openSet)) {
+          openSet[neighbor] = true;
+          openSetCount++;
+        }
+      }
+    }
+  }
+}
+
 function gbfs(start, goal) {
   addStartFlag(nodeCoords(start));
   addGoalFlag(nodeCoords(goal));
@@ -236,6 +294,8 @@ self.addEventListener('message', function(ev) {
       gbfs(msg.start, msg.goal);
     } else if (msg.type === 'astar') {
       astar(msg.start, msg.goal);
+    } else if (msg.type === 'bfs') {
+      bfs(msg.start, msg.goal);
     } else if (msg.type === 'ucs') {
       ucs(msg.start, msg.goal);
     } else if (msg.type === 'dfs') {
