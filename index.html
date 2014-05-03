@@ -28,7 +28,7 @@
   <div id="controls">
     <p>
       Use
-      <select name="algo" id="algo" class="algo">
+      <select name="algo" id="algo-sel" class="algo">
         <option value="" style="display:none;"></option>
         <option value="astar">A*</option>
         <option value="gbfs">Greatest-Best-First Search</option>
@@ -36,14 +36,16 @@
         <option value="dfs">Depth-First Search</option>
       </select>
       to get from
-      <select name="start" id="start" class="loc">
+      <select name="start" id="start-sel" class="loc">
         <option value="" style="display:none;"></option>
       </select>
       to
-      <select name="goal" id="goal" class="loc">
+      <select name="goal" id="goal-sel" class="loc">
         <option value="" style="display:none;"></option>
       </select>
-      <button id="go" class="btn btn-success btn-xs">Go!</button>
+      <button id="start-btn" class="btn btn-success btn-xs" disabled>Start</button>
+      <button id="stop-btn" class="btn btn-danger btn-xs" disabled>Stop</button>
+      <button id="clear-btn" class="btn btn-primary btn-xs">Clear</button>
     </p>
   </div>
   <div id="map"></div>
@@ -55,7 +57,7 @@
   <script src="lib/chosen/chosen.jquery.min.js"></script>
   <script src="lib/chosen/chosen.proto.min.js"></script>
   <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-  <script src="js/pathfinding.js"></script>
+  <script src="js/presentation.js"></script>
   <script src="js/form-setup.js"></script>
 </body>
 </html>
