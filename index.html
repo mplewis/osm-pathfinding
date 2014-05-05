@@ -22,11 +22,66 @@
       margin-left: 10px;
       padding-top: 10px;
     }
+    .slider.range {
+      display: none;
+    }
+    .slider-container {
+      margin-left: 20px;
+    }
+    /* slider root element */
+    .slider {
+      display: inline-block;
+      background:#3C72E6 url("https://raw.githubusercontent.com/jquerytools/jquerytools.github.com/master/media/img/gradient/h30.png") repeat-x 0 0;
+      height:9px;
+      position:relative;
+      cursor:pointer;
+      border:1px solid #333;
+      width:200px;
+      margin-top:10px;
+      margin-left: 10px;
+      margin-right: 10px;
+      -moz-border-radius:5px;
+      -webkit-border-radius:5px;
+      -moz-box-shadow:inset 0 0 8px #000;
+    }
+    /* progress bar (enabled with progress: true) */
+    .progress {
+      height:9px;
+      background-color:#C5FF00;
+      display:none;
+      opacity:0.6;
+    }
+    /* drag handle */
+    .handle {
+      background:#fff url("https://raw.githubusercontent.com/jquerytools/jquerytools.github.com/master/media/img/gradient/h30.png") repeat-x 0 0;
+      height:28px;
+      width:28px;
+      top:-12px;
+      position:absolute;
+      margin-top:1px;
+      border:1px solid #000;
+      cursor:move;
+      -moz-box-shadow:0 0 6px #000;
+      -webkit-box-shadow:0 0 6px #000;
+      -moz-border-radius:14px;
+      -webkit-border-radius:14px;
+    }
+    /* the input field */
+    .range {
+      border:1px inset #ddd;
+      font-size:20px;
+      margin:0 0 0 15px;
+      padding:3px 0;
+      text-align:center;
+      width:50px;
+      -moz-border-radius:5px;
+      -webkit-border-radius:5px;
+    }
   </style>
 </head>
 <body>
   <div id="controls">
-    <p>
+    <p class="non-sliders">
       Use
       <select name="algo" id="algo-sel" class="algo">
         <option value="" style="display:none;"></option>
@@ -47,10 +102,17 @@
       <button id="start-btn" class="btn btn-success btn-xs" disabled>Start</button>
       <button id="stop-btn" class="btn btn-danger btn-xs" disabled>Stop</button>
       <button id="clear-btn" class="btn btn-primary btn-xs">Clear</button>
+      
+      <span class="slider-container">
+        Fast
+        <input type="range" class="slider" name="test" min="0" max="40" step="8" value="0">
+        Slow
+      </span>
     </p>
   </div>
   <div id="map"></div>
   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+  <script src="//cdn.jquerytools.org/1.2.7/full/jquery.tools.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
   <script src="//api.tiles.mapbox.com/mapbox.js/v1.6.2/mapbox.js"></script>
   <script src="//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/leaflet.markercluster.js"></script>
