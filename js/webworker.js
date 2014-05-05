@@ -1,5 +1,5 @@
 var nodes;
-var searchSpeed = 10;   // in milliseconds
+var searchDelay = 0;   // in milliseconds
 
 function nodeCoords(nodeID) {
   var node = nodes[nodeID];
@@ -103,7 +103,7 @@ function astar(start, goal) {
         }
       }
     }
-  }, searchSpeed)
+  }, searchDelay);
 }
 
 function bfs(start, goal) {
@@ -124,7 +124,7 @@ function bfs(start, goal) {
 
   var whileloop = setInterval(function() {
     if (openSetCount < 1) {
-      clearInterval(whileloop)
+      clearInterval(whileloop);
       noPathFound();
       return;
     }
@@ -134,7 +134,7 @@ function bfs(start, goal) {
     var current = openSetSortedF[0];
     displayNode(nodeCoords(current));
     if (current == goal) {
-      clearInterval(whileloop)
+      clearInterval(whileloop);
       var path = reconstructPath(cameFrom, goal);
       var pathCoords = path.map(nodeCoords);
       pathFound(pathCoords);
@@ -161,7 +161,7 @@ function bfs(start, goal) {
         }
       }
     }
-  }, searchSpeed)
+  }, searchDelay);
 }
 
 function gbfs(start, goal) {
@@ -214,7 +214,7 @@ function gbfs(start, goal) {
       }
     }
 
-  }, searchSpeed)
+  }, searchDelay);
 }
 
 function ucs(start, goal) {
@@ -249,7 +249,7 @@ function ucs(start, goal) {
     });
 
     openList = openList.concat(adj);
-  }, searchSpeed)
+  }, searchDelay)
 }
 
 function dfs(start, goal) {
@@ -284,7 +284,7 @@ function dfs(start, goal) {
     });
 
     openList = openList.concat(adj);
-  }, searchSpeed)
+  }, searchDelay);
 }
 
 self.addEventListener('message', function(ev) {
@@ -303,5 +303,7 @@ self.addEventListener('message', function(ev) {
     }
   } else if (msg.task === 'loadNodes') {
     nodes = msg.nodes;
+  } else if (msg.task === 'searchDelay') {
+    searchDelay = msg.searchDelay;
   }
 }, false);
