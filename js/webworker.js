@@ -67,7 +67,7 @@ function astar(start, goal) {
   var whileloop = setInterval(function() {
 
       if (openSetCount < 1) {
-        clearInterval(whileLoop);
+        clearInterval(whileloop);
         noPathFound();
         return;
       }
@@ -79,7 +79,7 @@ function astar(start, goal) {
       displayNode(nodeCoords(current));
 
       if (current == goal) {
-        clearInterval(whileLoop);
+        clearInterval(whileloop);
         var path = reconstructPath(cameFrom, goal);
         var pathCoords = path.map(nodeCoords);
         pathFound(pathCoords);
@@ -107,7 +107,7 @@ function astar(start, goal) {
         }
       }
 
-  }, 1000)   // number of ms
+  }, 10)   // number of ms
 
 
 }
