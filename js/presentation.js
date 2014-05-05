@@ -1,5 +1,5 @@
 var nodeDataUrl = 'data/nodes.json';
-var maxFreshDots = 1;
+var maxFreshDots = 20;
 
 var style = {
 

@@ -35,6 +35,9 @@ function addGoalFlag(coords) {
 }
 
 function displayNode(coords) {
+
+  //setInterval(function() {self.postMessage({ task: 'displayNode', coords: coords}); }, 1)  // time in milliseconds
+
   self.postMessage({task: 'displayNode', coords: coords});
 }
 
@@ -61,47 +64,52 @@ function astar(start, goal) {
   var fScore = {};
   fScore[start] = gScore[start] + distNodes(start, goal);
 
-  var looping = true;
-  while (looping) {
-    if (openSetCount < 1) {
-      looping = false;
-      noPathFound();
-      return;
-    }
-    var openSetUnsorted = [];
-    for (var k in openSet) openSetUnsorted.push(k);
-    var openSetSortedF = openSetUnsorted.sort(function(a, b) { return fScore[a] - fScore[b]; });
-    var current = openSetSortedF[0];
-    displayNode(nodeCoords(current));
-    if (current == goal) {
-      looping = false;
-      var path = reconstructPath(cameFrom, goal);
-      var pathCoords = path.map(nodeCoords);
-      pathFound(pathCoords);
-      return;
-    }
+  var whileloop = setInterval(function() {
 
-    delete openSet[current];
-    openSetCount--;
-    closedSet[current] = true;
-    var adj = adjNodes(current);
-    for (var i = 0; i < adj.length; i++) {
-      var neighbor = adj[i];
-      if (neighbor in closedSet) {
-        continue;
+      if (openSetCount < 1) {
+        clearInterval(whileLoop);
+        noPathFound();
+        return;
       }
-      tentativeGScore = gScore[current] + distNodes(current, neighbor);
-      if (!(neighbor in openSet) || tentativeGScore < gScore[neighbor]) {
-        cameFrom[neighbor] = current;
-        gScore[neighbor] = tentativeGScore;
-        fScore[neighbor] = gScore[neighbor] + distNodes(neighbor, goal);
-        if (!(neighbor in openSet)) {
-          openSet[neighbor] = true;
-          openSetCount++;
+      var openSetUnsorted = [];
+      for (var k in openSet) openSetUnsorted.push(k);
+      var openSetSortedF = openSetUnsorted.sort(function(a, b) { return fScore[a] - fScore[b]; });
+      var current = openSetSortedF[0];
+
+      displayNode(nodeCoords(current));
+
+      if (current == goal) {
+        clearInterval(whileLoop);
+        var path = reconstructPath(cameFrom, goal);
+        var pathCoords = path.map(nodeCoords);
+        pathFound(pathCoords);
+        return;
+      }
+
+      delete openSet[current];
+      openSetCount--;
+      closedSet[current] = true;
+      var adj = adjNodes(current);
+      for (var i = 0; i < adj.length; i++) {
+        var neighbor = adj[i];
+        if (neighbor in closedSet) {
+          continue;
+        }
+        tentativeGScore = gScore[current] + distNodes(current, neighbor);
+        if (!(neighbor in openSet) || tentativeGScore < gScore[neighbor]) {
+          cameFrom[neighbor] = current;
+          gScore[neighbor] = tentativeGScore;
+          fScore[neighbor] = gScore[neighbor] + distNodes(neighbor, goal);
+          if (!(neighbor in openSet)) {
+            openSet[neighbor] = true;
+            openSetCount++;
+          }
         }
       }
-    }
-  }
+
+  }, 1000)   // number of ms
+
+
 }
 
 function bfs(start, goal) {
