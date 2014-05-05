@@ -57,6 +57,10 @@ function pathFound(nodes) {
   self.postMessage({task: 'pathFound', path: nodes});
 }
 
+function updateLegend(nodes, progress) {
+  self.postMessage({task: 'updateLegend', nodes: nodes, progress: progress});
+}
+
 function astar(start, goal) {
   addStartFlag(nodeCoords(start));
   addGoalFlag(nodeCoords(goal));
@@ -64,6 +68,7 @@ function astar(start, goal) {
   var openSet = {};
   openSet[start] = true;
   var openSetCount = 1;
+  var totalNodesSeen = 1;
   var cameFrom = {};
 
   var gScore = {};
@@ -84,16 +89,22 @@ function astar(start, goal) {
     var openSetSortedF = openSetUnsorted.sort(function(a, b) { return fScore[a] - fScore[b]; });
     var current = openSetSortedF[0];
     displayNode(nodeCoords(current));
+
+    var progress = distNodes(current, goal) / distNodes(start, goal);
+    updateLegend(totalNodesSeen, progress);
+
     if (current == goal) {
       looping = false;
       var path = reconstructPath(cameFrom, goal);
       var pathCoords = path.map(nodeCoords);
       pathFound(pathCoords);
+      updateLegend(totalNodesSeen, 100);
       return;
     }
 
     delete openSet[current];
     openSetCount--;
+    totalNodesSeen++;
     closedSet[current] = true;
     var adj = adjNodes(current);
     for (var i = 0; i < adj.length; i++) {
