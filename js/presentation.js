@@ -59,6 +59,22 @@ function nodeCoords(nodeId) {
 var map = L.mapbox.map('map', 'mplewis.hjdng7eb');
 var markers = new L.MarkerClusterGroup();
 
+function updateLegend(map, nodes, progress) {
+  this.currentText = '';
+}
+
+updateLegend.prototype.publicMethod = function (map, nodes, progress) {
+  map.legendControl.removeLegend(this.currentText);
+  delete map.legendControl._legends[this.currentText];
+
+  this.currentText = '<p>Nodes Searched: ' + String(nodes) + '<br>' + 
+                'Progress: ' + String(progress.toFixed(2)) + '%</p>';
+  map.legendControl.addLegend(this.currentText, {'position': 'bottomright'});
+};
+var legend = new updateLegend();
+
+legend.publicMethod(map, 0, 0);
+
 var startFlag = null;
 var goalFlag = null;
 
@@ -142,6 +158,7 @@ function displayPath(coordList) {
 function clearMap() {
   removeAllNodes();
   removeDisplayedPath();
+  legend.publicMethod(map, 0, 0);
 }
 
 var worker = null;
@@ -170,6 +187,8 @@ function startWorker() {
       ageAllNodes();
       disableStopButton();
       enableStartButton();
+    } else if (task === 'updateLegend') {
+      legend.publicMethod(map, data.nodes, data.progress);
     }
   }, false);
 }
