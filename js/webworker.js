@@ -79,9 +79,10 @@ function astar(start, goal) {
   var fScore = {};
   fScore[start] = gScore[start] + distNodes(start, goal);
 
-  var whileloop = setInterval(function() {
+  var algo = function() {
     if (openSetCount < 1) {
-      clearInterval(whileloop);
+      clearInterval(whileLoop);
+      looping = false;
       noPathFound();
       return;
     }
@@ -98,7 +99,8 @@ function astar(start, goal) {
     }
     updateLegend(totalNodesSeen, progress);
     if (current == goal) {
-      clearInterval(whileloop);
+      clearInterval(whileLoop);
+      looping = false;
       var path = reconstructPath(cameFrom, goal);
       var pathCoords = path.map(nodeCoords);
       pathFound(pathCoords);
@@ -127,7 +129,17 @@ function astar(start, goal) {
         }
       }
     }
-  }, searchDelay);
+  };
+
+  if (searchDelay === 0) {
+    var looping = true;
+    var whileLoop = 0;
+    while (looping) {
+      algo();
+    }
+  } else {
+    var whileLoop = setInterval(algo, searchDelay);
+  }
 }
 
 function bfs(start, goal) {
@@ -148,9 +160,9 @@ function bfs(start, goal) {
   fScore[start] = gScore[start];
 
 
-  var whileloop = setInterval(function() {
+  var whileLoop = setInterval(function() {
     if (openSetCount < 1) {
-      clearInterval(whileloop);
+      clearInterval(whileLoop);
       noPathFound();
       return;
     }
@@ -167,7 +179,7 @@ function bfs(start, goal) {
     updateLegend(totalNodesSeen, progress);
 
     if (current == goal) {
-      clearInterval(whileloop);
+      clearInterval(whileLoop);
       var path = reconstructPath(cameFrom, goal);
       var pathCoords = path.map(nodeCoords);
       pathFound(pathCoords);
@@ -214,9 +226,9 @@ function gbfs(start, goal) {
   var fScore = {};
   fScore[start] = distNodes(start, goal);
 
-  var whileloop = setInterval(function() {
+  var whileLoop = setInterval(function() {
     if (openSetCount < 1) {
-      clearInterval(whileloop);
+      clearInterval(whileLoop);
       noPathFound();
       return;
     }
@@ -233,7 +245,7 @@ function gbfs(start, goal) {
     updateLegend(totalNodesSeen, progress);
 
     if (current == goal) {
-      clearInterval(whileloop);
+      clearInterval(whileLoop);
       var path = reconstructPath(cameFrom, goal);
       var pathCoords = path.map(nodeCoords);
       pathFound(pathCoords);
@@ -275,9 +287,9 @@ function ucs(start, goal) {
   var totalNodesSeen = 1;
   var progress = 0;
 
-  var whileloop = setInterval(function() {
+  var whileLoop = setInterval(function() {
     if (openList.length < 1) {
-      clearInterval(whileloop);
+      clearInterval(whileLoop);
       noPathFound();
       return;
     }
@@ -292,7 +304,7 @@ function ucs(start, goal) {
     updateLegend(totalNodesSeen, progress);
 
     if (current == goal) {
-      clearInterval(whileloop);
+      clearInterval(whileLoop);
       var path = reconstructPath(cameFrom, goal);
       var pathCoords = path.map(nodeCoords);
       pathFound(pathCoords);
@@ -322,9 +334,9 @@ function dfs(start, goal) {
   var totalNodesSeen = 1;
   var progress = 0;
 
-  var whileloop = setInterval(function() {
+  var whileLoop = setInterval(function() {
     if (openList.length < 1) {
-      setInterval(whileloop);
+      setInterval(whileLoop);
       noPathFound();
       return;
     }
@@ -340,7 +352,7 @@ function dfs(start, goal) {
     updateLegend(totalNodesSeen, progress);
 
     if (current == goal) {
-      setInterval(whileloop);
+      setInterval(whileLoop);
       var path = reconstructPath(cameFrom, goal);
       var pathCoords = path.map(nodeCoords);
       pathFound(pathCoords);
