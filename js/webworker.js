@@ -36,9 +36,6 @@ function addGoalFlag(coords) {
 }
 
 function displayNode(coords) {
-
-  //setInterval(function() {self.postMessage({ task: 'displayNode', coords: coords}); }, 1)  // time in milliseconds
-
   self.postMessage({task: 'displayNode', coords: coords});
 }
 
@@ -66,47 +63,47 @@ function astar(start, goal) {
   fScore[start] = gScore[start] + distNodes(start, goal);
 
   var whileloop = setInterval(function() {
-      if (openSetCount < 1) {
-        clearInterval(whileloop);
-        noPathFound();
-        return;
+    if (openSetCount < 1) {
+      clearInterval(whileloop);
+      noPathFound();
+      return;
+    }
+    var openSetUnsorted = [];
+    for (var k in openSet) openSetUnsorted.push(k);
+    var openSetSortedF = openSetUnsorted.sort(function(a, b) { return fScore[a] - fScore[b]; });
+    var current = openSetSortedF[0];
+
+    displayNode(nodeCoords(current));
+
+    if (current == goal) {
+      clearInterval(whileloop);
+      var path = reconstructPath(cameFrom, goal);
+      var pathCoords = path.map(nodeCoords);
+      pathFound(pathCoords);
+      return;
+    }
+
+    delete openSet[current];
+    openSetCount--;
+    closedSet[current] = true;
+    var adj = adjNodes(current);
+    for (var i = 0; i < adj.length; i++) {
+      var neighbor = adj[i];
+      if (neighbor in closedSet) {
+        continue;
       }
-      var openSetUnsorted = [];
-      for (var k in openSet) openSetUnsorted.push(k);
-      var openSetSortedF = openSetUnsorted.sort(function(a, b) { return fScore[a] - fScore[b]; });
-      var current = openSetSortedF[0];
-
-      displayNode(nodeCoords(current));
-
-      if (current == goal) {
-        clearInterval(whileloop);
-        var path = reconstructPath(cameFrom, goal);
-        var pathCoords = path.map(nodeCoords);
-        pathFound(pathCoords);
-        return;
-      }
-
-      delete openSet[current];
-      openSetCount--;
-      closedSet[current] = true;
-      var adj = adjNodes(current);
-      for (var i = 0; i < adj.length; i++) {
-        var neighbor = adj[i];
-        if (neighbor in closedSet) {
-          continue;
+      tentativeGScore = gScore[current] + distNodes(current, neighbor);
+      if (!(neighbor in openSet) || tentativeGScore < gScore[neighbor]) {
+        cameFrom[neighbor] = current;
+        gScore[neighbor] = tentativeGScore;
+        fScore[neighbor] = gScore[neighbor] + distNodes(neighbor, goal);
+        if (!(neighbor in openSet)) {
+          openSet[neighbor] = true;
+          openSetCount++;
         }
-        tentativeGScore = gScore[current] + distNodes(current, neighbor);
-        if (!(neighbor in openSet) || tentativeGScore < gScore[neighbor]) {
-          cameFrom[neighbor] = current;
-          gScore[neighbor] = tentativeGScore;
-          fScore[neighbor] = gScore[neighbor] + distNodes(neighbor, goal);
-          if (!(neighbor in openSet)) {
-            openSet[neighbor] = true;
-            openSetCount++;
-          }
-        }
       }
-  }, searchSpeed)   // number of ms
+    }
+  }, searchSpeed)
 }
 
 function bfs(start, goal) {
@@ -164,9 +161,7 @@ function bfs(start, goal) {
         }
       }
     }
-  }, searchSpeed)   // number of ms
-
-
+  }, searchSpeed)
 }
 
 function gbfs(start, goal) {
@@ -181,10 +176,9 @@ function gbfs(start, goal) {
   var fScore = {};
   fScore[start] = distNodes(start, goal);
 
-  var looping = true;
-  while (looping) {
+  var whileloop = setInterval(function() {
     if (openSetCount < 1) {
-      looping = false;
+      clearInterval(whileloop);
       noPathFound();
       return;
     }
@@ -194,7 +188,7 @@ function gbfs(start, goal) {
     var current = openSetSortedF[0];
     displayNode(nodeCoords(current));
     if (current == goal) {
-      looping = false;
+      clearInterval(whileloop);
       var path = reconstructPath(cameFrom, goal);
       var pathCoords = path.map(nodeCoords);
       pathFound(pathCoords);
@@ -219,7 +213,8 @@ function gbfs(start, goal) {
         }
       }
     }
-  }
+
+  }, searchSpeed)
 }
 
 function ucs(start, goal) {
@@ -231,18 +226,17 @@ function ucs(start, goal) {
   closedSet[start] = true;
   var cameFrom = {};
 
-  var looping = true;
-  while (looping) {
+  var whileloop = setInterval(function() {
     if (openList.length < 1) {
-      looping = false;
+      clearInterval(whileloop);
       noPathFound();
       return;
     }
     var current = openList.shift();
-  
+
     displayNode(nodeCoords(current));
     if (current == goal) {
-      looping = false;
+      clearInterval(whileloop);
       var path = reconstructPath(cameFrom, goal);
       var pathCoords = path.map(nodeCoords);
       pathFound(pathCoords);
@@ -253,9 +247,9 @@ function ucs(start, goal) {
       cameFrom[node] = current;
       closedSet[node] = true;
     });
-  
+
     openList = openList.concat(adj);
-  }
+  }, searchSpeed)
 }
 
 function dfs(start, goal) {
@@ -267,19 +261,18 @@ function dfs(start, goal) {
   closedSet[start] = true;
   var cameFrom = {};
 
-  var looping = true;
-  while (looping) {
+  var whileloop = setInterval(function() {
     if (openList.length < 1) {
-      looping = false;
+      setInterval(whileloop);
       noPathFound();
       return;
     }
     var current = openList.pop();
     closedSet[current] = true;
-  
+
     displayNode(nodeCoords(current));
     if (current == goal) {
-      looping = false;
+      setInterval(whileloop);
       var path = reconstructPath(cameFrom, goal);
       var pathCoords = path.map(nodeCoords);
       pathFound(pathCoords);
@@ -289,9 +282,9 @@ function dfs(start, goal) {
     adj.forEach(function(node) {
       cameFrom[node] = current;
     });
-  
+
     openList = openList.concat(adj);
-  }
+  }, searchSpeed)
 }
 
 self.addEventListener('message', function(ev) {
