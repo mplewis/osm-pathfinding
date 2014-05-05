@@ -131,7 +131,7 @@ function astar(start, goal) {
     }
   };
 
-  if (searchDelay === 0) {
+  if (searchDelay < 0) {
     var looping = true;
     var whileLoop = 0;
     while (looping) {
@@ -160,7 +160,7 @@ function bfs(start, goal) {
   fScore[start] = gScore[start];
 
 
-  var whileLoop = setInterval(function() {
+  var algo = function() {
     if (openSetCount < 1) {
       clearInterval(whileLoop);
       noPathFound();
@@ -209,7 +209,17 @@ function bfs(start, goal) {
         }
       }
     }
-  }, searchDelay);
+  };
+
+  if (searchDelay < 0) {
+    var looping = true;
+    var whileLoop = 0;
+    while (looping) {
+      algo();
+    }
+  } else {
+    var whileLoop = setInterval(algo, searchDelay);
+  }
 }
 
 function gbfs(start, goal) {
@@ -226,7 +236,7 @@ function gbfs(start, goal) {
   var fScore = {};
   fScore[start] = distNodes(start, goal);
 
-  var whileLoop = setInterval(function() {
+  var algo = function() {
     if (openSetCount < 1) {
       clearInterval(whileLoop);
       noPathFound();
@@ -273,7 +283,17 @@ function gbfs(start, goal) {
       }
     }
 
-  }, searchDelay);
+  };
+
+  if (searchDelay < 0) {
+    var looping = true;
+    var whileLoop = 0;
+    while (looping) {
+      algo();
+    }
+  } else {
+    var whileLoop = setInterval(algo, searchDelay);
+  }
 }
 
 function ucs(start, goal) {
@@ -287,7 +307,7 @@ function ucs(start, goal) {
   var totalNodesSeen = 1;
   var progress = 0;
 
-  var whileLoop = setInterval(function() {
+  var algo = function() {
     if (openList.length < 1) {
       clearInterval(whileLoop);
       noPathFound();
@@ -320,7 +340,17 @@ function ucs(start, goal) {
     });
 
     openList = openList.concat(adj);
-  }, searchDelay);
+  };
+
+  if (searchDelay < 0) {
+    var looping = true;
+    var whileLoop = 0;
+    while (looping) {
+      algo();
+    }
+  } else {
+    var whileLoop = setInterval(algo, searchDelay);
+  }
 }
 
 function dfs(start, goal) {
@@ -334,7 +364,7 @@ function dfs(start, goal) {
   var totalNodesSeen = 1;
   var progress = 0;
 
-  var whileLoop = setInterval(function() {
+  var algo = function() {
     if (openList.length < 1) {
       setInterval(whileLoop);
       noPathFound();
@@ -367,7 +397,17 @@ function dfs(start, goal) {
     });
 
     openList = openList.concat(adj);
-  }, searchDelay);
+  };
+
+  if (searchDelay < 0) {
+    var looping = true;
+    var whileLoop = 0;
+    while (looping) {
+      algo();
+    }
+  } else {
+    var whileLoop = setInterval(algo, searchDelay);
+  }
 }
 
 self.addEventListener('message', function(ev) {
