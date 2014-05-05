@@ -30,5 +30,13 @@
   {"name": "IDS Tower", "node": "1076377565"},
   {"name": "Orpheum Theatre", "node": "2090482161"},
   {"name": "Pantages Theatre", "node": "33826716"},
-  {"name": "Hennipen County Medical Center", "node": "33803321"}
+  {"name": "Hennipen County Medical Center", "node": "33803321"},
+  {"name": "North Central University", "node": "1371140015"},
+  {"name": "The Depot", "node": "944735113"},
+  {"name": "Minneapolis City Hall", "node": "33369172"},
+  {"name": "Lake Calhoun", "node": "476931420"},
+  {"name": "Van Cleve Park", "node": "34372686"},
+  {"name": "Tower Hill Park - Witch's Hat", "node": "34397227"},
+  {"name": "Loring Park", "node": "33826407"},
+  {"name": "Nicollet Island", "node": "33308479"}
 ]
