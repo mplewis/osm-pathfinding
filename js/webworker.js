@@ -1,4 +1,5 @@
 var nodes;
+var searchSpeed = 10;   // in milliseconds
 
 function nodeCoords(nodeID) {
   var node = nodes[nodeID];
@@ -65,7 +66,6 @@ function astar(start, goal) {
   fScore[start] = gScore[start] + distNodes(start, goal);
 
   var whileloop = setInterval(function() {
-
       if (openSetCount < 1) {
         clearInterval(whileloop);
         noPathFound();
@@ -106,10 +106,7 @@ function astar(start, goal) {
           }
         }
       }
-
-  }, 10)   // number of ms
-
-
+  }, searchSpeed)   // number of ms
 }
 
 function bfs(start, goal) {
@@ -127,10 +124,10 @@ function bfs(start, goal) {
   var fScore = {};
   fScore[start] = gScore[start];
 
-  var looping = true;
-  while (looping) {
+
+  var whileloop = setInterval(function() {
     if (openSetCount < 1) {
-      looping = false;
+      clearInterval(whileloop)
       noPathFound();
       return;
     }
@@ -140,7 +137,7 @@ function bfs(start, goal) {
     var current = openSetSortedF[0];
     displayNode(nodeCoords(current));
     if (current == goal) {
-      looping = false;
+      clearInterval(whileloop)
       var path = reconstructPath(cameFrom, goal);
       var pathCoords = path.map(nodeCoords);
       pathFound(pathCoords);
@@ -167,7 +164,9 @@ function bfs(start, goal) {
         }
       }
     }
-  }
+  }, searchSpeed)   // number of ms
+
+
 }
 
 function gbfs(start, goal) {
