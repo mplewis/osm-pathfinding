@@ -86,3 +86,11 @@ $('button#stop-btn').click(function() {
 $('button#clear-btn').click(function() {
   clearMap();
 });
+
+$(".slider").rangeinput().on('change', function() {
+  var searchDelay = $('.slider.range').val();
+  worker.postMessage({
+    task: 'searchDelay',
+    searchDelay: searchDelay
+  });
+});
