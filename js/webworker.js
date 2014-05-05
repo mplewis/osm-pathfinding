@@ -398,7 +398,8 @@ function dfs(start, goal) {
     updateLegend(totalNodesSeen, progress);
 
     if (current == goal) {
-      setInterval(whileLoop);
+      clearInterval(whileLoop);
+      looping = false;
       var path = reconstructPath(cameFrom, goal);
       var pathCoords = path.map(nodeCoords);
       pathFound(pathCoords);
