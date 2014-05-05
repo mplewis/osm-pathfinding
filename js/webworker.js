@@ -27,6 +27,17 @@ function reconstructPath(cameFrom, currentNode) {
   }
 }
 
+// From http://stackoverflow.com/a/12646864/2811887
+function shuffleArray(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+    return array;
+}
+
 function addStartFlag(coords) {
   self.postMessage({task: 'addStartFlag', coords: coords});
 }
@@ -145,6 +156,7 @@ function bfs(start, goal) {
     openSetCount--;
     closedSet[current] = true;
     var adj = adjNodes(current);
+    shuffleArray(adj);
     for (var i = 0; i < adj.length; i++) {
       var neighbor = adj[i];
       if (neighbor in closedSet) {
@@ -243,6 +255,7 @@ function ucs(start, goal) {
       return;
     }
     var adj = adjNodes(current).filter(function(node) { return !(node in closedSet); });
+    shuffleArray(adj);
     adj.forEach(function(node) {
       cameFrom[node] = current;
       closedSet[node] = true;
@@ -279,6 +292,7 @@ function dfs(start, goal) {
       return;
     }
     var adj = adjNodes(current).filter(function(node) { return !(node in closedSet); });
+    shuffleArray(adj);
     adj.forEach(function(node) {
       cameFrom[node] = current;
     });
