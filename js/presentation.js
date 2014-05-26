@@ -56,7 +56,7 @@ function nodeCoords(nodeId) {
   return getNodes()[nodeId];
 }
 
-var map = L.mapbox.map('map', 'mplewis.hjdng7eb');
+var map = L.mapbox.map('map', 'examples.map-i86nkdio');
 var markers = new L.MarkerClusterGroup();
 
 function updateLegend(map, nodes, progress) {
