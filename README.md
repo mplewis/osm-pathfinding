@@ -30,34 +30,6 @@ We are using Boostrap to create a responsive front-end for the visualizations. W
 
 ## Installation
 
-### Dependencies 
-
-* [Redis](http://redis.io/)
-* [webdis](https://github.com/nicolasff/webdis)
-
-#### Redis
-1. Install Redis following directions at [redis.io](http://redis.io/)
-
-2. Download the [node info Redis database dump](https://dl.dropboxusercontent.com/u/40265/all_mpls_dump.rdb.zip). This contains gps coordinates of each node, as well as adjacency sets for each node.
-
-3. Start `redis-server` in the same folder as the database dump with no arguments. Redis will automatically load the dump on startup.
-
-#### webdis
-
-1. Clone the webdis repo to your computer
-
-		$ git clone https://github.com/nicolasff/webdis.git
-
-2. Build webdis.
-
-		$ cd webdis
-		$ make
-
-3. Run webdis
-
-		$ ./webdis
-
-### Our stuff
 1.  Clone the osm-pathfinding repo to your computer.
 
 		$ git clone https://github.com/mplewis/osm-pathfinding.git
