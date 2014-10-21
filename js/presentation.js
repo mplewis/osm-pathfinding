@@ -56,7 +56,7 @@ function nodeCoords(nodeId) {
   return getNodes()[nodeId];
 }
 
-var map = L.mapbox.map('map', 'mplewis.hjdng7eb');
+var map = L.mapbox.map('map', 'examples.map-i86nkdio').setView([44.98, -93.25], 14);
 var markers = new L.MarkerClusterGroup();
 
 function updateLegend(map, nodes, progress) {
@@ -67,7 +67,8 @@ updateLegend.prototype.publicMethod = function (map, nodes, progress) {
   map.legendControl.removeLegend(this.currentText);
   delete map.legendControl._legends[this.currentText];
 
-  this.currentText = '<p>Nodes Searched: ' + String(nodes) + '<br>' + 
+  this.currentText = '<p><a href="https://github.com/mplewis/osm-pathfinding" target="_blank">View the code on Github</a></p>' +
+                '<p>Nodes Searched: ' + String(nodes) + '<br>' + 
                 'Progress: ' + String(progress.toFixed(2)) + '%</p>';
   map.legendControl.addLegend(this.currentText, {'position': 'bottomright'});
 };
