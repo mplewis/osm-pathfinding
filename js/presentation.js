@@ -57,7 +57,7 @@ function nodeCoords(nodeId) {
 }
 
 L.mapbox.accessToken="pk.eyJ1IjoiZGFvaHU1MjciLCJhIjoiY2p1cGhuNTRmMjI0MjQ0bWlncnZ1cXZhZiJ9.RLz-3NiK6crojbTnWu34Kg";
-var map = L.mapbox.map('map').setView([44.98, -93.25], 14).addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/streets-v11'));
+var map = L.mapbox.map('map').setView([22.50, 113.91], 14).addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/streets-v11'));
 var markers = new L.MarkerClusterGroup();
 
 function updateLegend(map, nodes, progress) {
