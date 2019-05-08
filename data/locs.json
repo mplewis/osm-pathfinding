@@ -1,9 +1,13 @@
 [
-  {"name": "Triangle Fraternity", "node": "5484532889"},
-  {"name": "Keller Hall", "node": "5360333366"},
-  {"name": "Argyle House", "node": "5360333508"},
-  {"name": "Stadium View Apartments", "node": "5672875390"},
-  {"name": "Walter Library", "node": "4729093873"},
-  {"name": "Joe's house", "node": "2432079841"},
-  {"name": "Carlson School of Management", "node": "5389587205"}
+  {"name": "深圳湾体育中心", "node": "5604256041"},
+  {"name": "深圳人才公园", "node": "3316841345"},
+  {"name": "蔚蓝海岸1期", "node": "2411120893"},
+  {"name": "保利文化广场", "node": "2432348184"},
+  {"name": "深圳凯宾斯基酒店", "node": "2432079849"},
+  {"name": "深圳书城", "node": "2432364917"},
+  {"name": "天利名城购物中心", "node": "2432348159"},
+  {"name": "海上世界", "node": "1944056736"},
+  {"name": "后海", "node": "1944056740"},
+  {"name": "东角头", "node": "1947291248"},
+  {"name": "海月", "node": "2409480669"}          
 ]
