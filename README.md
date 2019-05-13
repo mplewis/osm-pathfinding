@@ -1,5 +1,9 @@
 # OSM Pathfinding
 
+## Demo
+You can visit below website for a demo.  
+[demo](daohu527.github.io)
+
 ## About
 
 This is a final project for UMN CSCI 4511W. We are making a pathfinding algorithm visualization. It shows how pathfinding algorithms like A* behave in real world scenarios like finding directions on a map in real time.
