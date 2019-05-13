@@ -2,7 +2,7 @@
 
 ## Demo
 You can visit below website for a demo.  
-[demo](daohu527.github.io)
+[Demo For OSM Pathfinding](https://daohu527.github.io/)
 
 ## About
 
